@@ -3,7 +3,8 @@
 (radian-local-on-hook after-init
   (radian-with-operating-system macOS
     (setq mac-option-modifier 'super
-          mac-command-modifier 'meta))
+          mac-command-modifier 'meta
+          ns-pop-up-frames nil))
 
   ;; For whatever reason, M-s is not overwritten by evil normal mode
   ;; keybindings.
@@ -64,6 +65,7 @@
     :general
     ("M-s" 'razzi-flycheck-and-save-buffer)
     (:states 'normal
+             "C-c r" 'web-mode-element-rename
              "<backtab>" 'razzi-previous-useful-buffer
              "[ SPC" 'razzi-insert-newline-before
              "] SPC" 'razzi-insert-newline-after
@@ -127,13 +129,14 @@
         (when (file-executable-p executable)
           executable)))
 
-    (defun razzi-use-local-eslint ()
+    (defun razzi-setup-local-eslint ()
+      (flycheck-add-mode 'javascript-eslint 'web-mode)
+      (flycheck-add-next-checker 'lsp 'javascript-eslint)
+
       (let ((eslint (razzi-find-npm-bin "eslint")))
         (setq-local flycheck-javascript-eslint-executable eslint)))
 
-    (flycheck-add-next-checker 'lsp 'javascript-eslint)
-    (add-hook 'web-mode-hook #'razzi-use-local-eslint)
-    (flycheck-add-mode 'javascript-eslint 'web-mode)
+    (add-hook 'web-mode-hook #'razzi-setup-local-eslint)
 
     :general
     (:states 'normal
@@ -149,7 +152,6 @@
              "gb" 'magit-blame-addition))
 
   (general-define-key :states 'normal
-                      "g ]" 'dumb-jump-go
                       "g /" 'rg-dwim
                       "0" 'evil-first-non-blank
                       "M-f" 'ctrlf-forward-literal
@@ -157,6 +159,7 @@
                       "M-/" 'evil-commentary-line)
 
   (general-define-key :states 'normal :prefix "SPC"
+                      "u" 'universal-argument
                       "ESC" 'kill-this-buffer
                       "/" 'radian-rg
                       "h d f" 'describe-function
@@ -165,6 +168,7 @@
                       "SPC" 'execute-extended-command
                       "f f" 'find-file
                       "f i" 'radian-find-init-local-el
+                      "f o" 'crux-open-with
                       "p" 'projectile-switch-project
                       "w m" 'delete-other-windows
                       "w j" 'windmove-down
@@ -266,6 +270,11 @@
     :config (golden-ratio-mode +1)
     :blackout t)
 
+  (use-package iedit
+    :general
+    (:states 'normal :prefix "SPC"
+             "ie" 'iedit-mode))
+
   (use-feature hippie-exp
     :config
     (setq hippie-expand-try-functions-list
@@ -273,6 +282,12 @@
 
   (use-feature ffap
     :demand t)
+
+  (use-feature dumb-jump
+    :config
+    (setq dumb-jump-confirm-jump-to-modified-file nil)
+    :general
+    (:states 'normal "g ]" 'dumb-jump-go))
 
   (defun razzi-mouse-open-file-or-url-on-click ()
     (interactive)
