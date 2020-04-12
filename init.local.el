@@ -289,6 +289,14 @@
     :general
     (:states 'normal "g ]" 'dumb-jump-go))
 
+  (use-feature yasnippet
+    :config
+    (defun razzi-yasnippet-allow-no-final-newline ()
+      (radian-fix-whitespace-mode -1))
+
+    (add-hook 'snippet-mode-hook 'razzi-yasnippet-allow-no-final-newline)
+    (yas-global-mode))
+
   (defun razzi-mouse-open-file-or-url-on-click ()
     (interactive)
     (let* ((string-at-point (ffap-string-at-point))
@@ -308,3 +316,6 @@
   (recentf-mode)
 
   (server-start))
+; quit keybindings
+;spc q q
+; m-q
