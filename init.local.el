@@ -54,6 +54,11 @@
   (use-package general
     :demand t)
 
+  (defun razzi-local-quit-emacs ()
+    (interactive)
+    (let ((radian--restart-in-progress t)) ; :/
+      (save-buffers-kill-terminal)))
+
   (defun razzi-local-restart-emacs ()
     (interactive)
     (let ((radian--restart-in-progress t)) ; :/
@@ -101,6 +106,7 @@
   (general-define-key "M-`" 'vterm-toggle)
 
   (general-define-key :states 'visual
+                      "c" 'evil-change
                       "s" 'evil-surround-region)
 
   (general-define-key :states 'insert
@@ -131,6 +137,8 @@
 
     (defun razzi-setup-local-eslint ()
       (flycheck-add-mode 'javascript-eslint 'web-mode)
+
+      ; causes an error
       (flycheck-add-next-checker 'lsp 'javascript-eslint)
 
       (let ((eslint (razzi-find-npm-bin "eslint")))
@@ -150,6 +158,17 @@
     :general
     (:states 'normal
              "gb" 'magit-blame-addition))
+
+  (use-package string-inflection
+    :general
+    (:states 'normal
+             "c" (general-key-dispatch 'evil-change
+                            "ru" 'string-inflection-upcase
+                            "rs" 'string-inflection-underscore
+                            "rt" 'string-inflection-camelcase
+                            "rc" 'string-inflection-lower-camelcase
+                            "rd" 'string-inflection-kebab-case
+                            "c" 'magit-commit)))
 
   (general-define-key :states 'normal
                       "g /" 'rg-dwim
